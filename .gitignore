@@ -1,0 +1,5 @@
+venv/
+vidking/db.sqlite3
+__pycache__/
+*.py[cod]
+vidking/vidking/__pycache__/
