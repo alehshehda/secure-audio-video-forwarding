@@ -20,7 +20,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 LOGIN_REDIRECT_URL = reverse_lazy('dashboard') 
-LOGIN_URL = reverse_lazy('login')  
+LOGIN_URL = '/account/api/login/'
 LOGOUT_URL = reverse_lazy('logout') 
 
 
@@ -34,9 +34,31 @@ DEBUG = True
 ALLOWED_HOSTS = []
 
 
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    ),
+}
+
+
+from datetime import timedelta
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60), 
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+    'ROTATE_REFRESH_TOKENS': False,
+    'BLACKLIST_AFTER_ROTATION': True,
+}
+
+
 # Application definition
 
 INSTALLED_APPS = [
+    'rest_framework',
+    'rest_framework_simplejwt',
     'account',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -77,16 +99,22 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'vidking.wsgi.application'
 
-
-# Database
-# https://docs.djangoproject.com/en/5.1/ref/settings/#databases
+import environ
+import os
+env = environ.Env()
+environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': env('DATABASE_NAME'),      
+        'USER': env('DATABASE_USER'),          
+        'PASSWORD': env('DATABASE_PASSWORD'), 
+        'HOST': 'localhost',      
+        'PORT': '3306',           
     }
 }
+
 
 
 # Password validation
