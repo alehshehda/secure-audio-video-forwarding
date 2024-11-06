@@ -1,0 +1,15 @@
+1)pull-request
+cd to directory with the project
+git add .
+git commit -m "describe"
+git push origin branch-name
+
+go to github
+
+2)deleting branch
+cd to directory with the project
+git fetch --prune
+git branch -vv
+git checkout main
+git branch -d branch-name
+
