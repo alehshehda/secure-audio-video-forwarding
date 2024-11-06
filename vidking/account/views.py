@@ -1,6 +1,4 @@
-from django.shortcuts import render
 from django.http import JsonResponse
-from django.contrib.auth.decorators import login_required
 from django.views.generic import TemplateView
 from django.contrib.auth import authenticate
 from .forms import UserRegistationForm
@@ -10,7 +8,10 @@ from rest_framework_simplejwt.views import TokenRefreshView
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.views import APIView
 from rest_framework.response import Response
-
+from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
+from .forms import UserFileForm
+from .models import UserFiles
 
 
 @login_required
@@ -106,3 +107,19 @@ def user_registration(request):
         user_form = UserRegistationForm()
     return render(request, 'account/register.html', {'user_form':user_form})
             
+@login_required
+def upload_file(request):
+    if request.method == 'POST':
+        form = UserFileForm(request.POST, request.FILES)
+        if form.is_valid():
+            user_file = form.save(commit=False)  # Nie zapisuj jeszcze do bazy danych
+            user_file.user = request.user  # Ustaw użytkownika na aktualnie zalogowanego
+            user_file.save()  # Zapisz plik do bazy danych
+            return redirect('upload_success')  # Przekieruj do strony sukcesu
+    else:
+        form = UserFileForm()
+
+    return render(request, 'upload_file.html', {'form': form})
+
+def upload_success(request):
+    return render(request, 'upload_success.html')

@@ -12,6 +12,9 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 from pathlib import Path
 from django.urls import reverse_lazy
+import os
+from dotenv import load_dotenv
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -99,19 +102,18 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'vidking.wsgi.application'
 
-import environ
-import os
-env = environ.Env()
-environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
+
+dotenv_path = os.path.join(BASE_DIR, 'config', '.env')
+load_dotenv(dotenv_path)
 
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': env('DATABASE_NAME'),      
-        'USER': env('DATABASE_USER'),          
-        'PASSWORD': env('DATABASE_PASSWORD'), 
-        'HOST': 'localhost',      
-        'PORT': '3306',           
+        'NAME': os.getenv('DATABASE_NAME'),
+        'USER': os.getenv('DATABASE_USER'),
+        'PASSWORD': os.getenv('DATABASE_PASSWORD'),
+        'HOST': os.getenv('DATABASE_HOST'),
+        'PORT': os.getenv('DATABASE_PORT'),
     }
 }
 
@@ -157,3 +159,8 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# settings.py
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_URL = '/media/'
+
