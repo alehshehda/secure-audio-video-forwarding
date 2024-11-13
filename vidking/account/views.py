@@ -1,37 +1,20 @@
+<<<<<<< HEAD
 from django.http import JsonResponse
 from django.views.generic import TemplateView
+=======
+from django.shortcuts import render, redirect
+>>>>>>> 5-adding-jwt
 from django.contrib.auth import authenticate
 from .forms import UserRegistationForm
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenRefreshView
-from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from .forms import UserFileForm
 from .models import UserFiles
-
-
-@login_required
-def dashboard(request):
-    return render(request, 'account/dashboard.html', {'dashboard': 'dashboard'})
-
-
-class ProtectedView(APIView):
-    authentication_classes = [JWTAuthentication]
-    permission_classes = [IsAuthenticated]
-    
-    def get(self, request):
-        print(f"User: {request.user}") 
-        content = {'message': 'This is a protected endpoint!'}
-        return Response(content)
-
-class LoginPageView(TemplateView):
-    template_name = 'registration/login.html'
-
-    
 
 class LoginView(APIView):
     permission_classes = [AllowAny]
@@ -45,55 +28,31 @@ class LoginView(APIView):
             refresh = RefreshToken.for_user(user)
             access_token = str(refresh.access_token)
             
-            response = JsonResponse({'message': 'Login successful!'})
-            
-            response.set_cookie(
-                key='access_token',
-                value=access_token,
-                httponly=True,
-                secure=False,
-                samesite='Lax'
-            )
-
-            response.set_cookie(
-                key='refresh_token',
-                value=str(refresh),
-                httponly=True,
-                secure=False,
-                samesite='Lax'
-            )
-            response = redirect('user_dashboard')
-            return response
+            return Response({
+                'access_token': access_token,
+                'refresh_token': str(refresh)
+            })
         else:
-            return JsonResponse({'error': 'Invalid Credentials'}, status=401)
+            return Response({'error': 'Invalid Credentials'}, status=401)
 
-class CustomRefreshTokenView(TokenRefreshView):
-    def post(self, request, *args, **kwargs):
-        refresh_token = request.COOKIES.get('refresh_token')  
-        if refresh_token is None:
-            return JsonResponse({"error": "Refresh token missing"}, status=401)
-        
-        request.data['refresh'] = refresh_token
-        response = super().post(request, *args, **kwargs)
-        
-        if response.status_code == 200:
-            access_token = response.data['access']
-            response.set_cookie(
-                key='access_token',
-                value=access_token,
-                httponly=True,
-                secure=False,
-                samesite='Lax'
-            )
-        return response
+
+class ProtectedView(APIView):
+    permission_classes = [IsAuthenticated]
     
-    
+    def get(self, request):
+        user = request.user
+        content = {'message': 'This is a protected endpoint!', 'user': user.username}
+        return Response(content)
+
+
 class LogoutView(APIView):
     def post(self, request):
-        response = JsonResponse({'logout_message': 'You have successfuly logout!'})
-        response.delete_cookie('access_token')
-        response.delete_cookie('refresh_token')
-        return response            
+        # Просто возвращаем сообщение о выходе
+        return Response({'message': 'You have successfully logged out!'})
+   
+   
+class CustomRefreshTokenView(TokenRefreshView):
+    pass
 
 def user_registration(request):
     if request.method == 'POST':
