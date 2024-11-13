@@ -1,9 +1,6 @@
-<<<<<<< HEAD
 from django.http import JsonResponse
 from django.views.generic import TemplateView
-=======
 from django.shortcuts import render, redirect
->>>>>>> 5-adding-jwt
 from django.contrib.auth import authenticate
 from .forms import UserRegistationForm
 from rest_framework.permissions import IsAuthenticated, AllowAny
