@@ -2,8 +2,11 @@
 __pycache__/
 *.py[cod]
 *$py.class
-vidking/account/__pycache__/
-vidking/vidking/__pycache__/
+
+# Django specific
+db.sqlite3
+media/
+static/
 
 # C extensions
 *.so
@@ -22,6 +25,7 @@ build/
 *.whl
 
 # Virtual environment
+.env
 .env/
 
 # Jupyter Notebook checkpoints
@@ -47,9 +51,9 @@ build/
 coverage/
 *.cover
 *.coverage
-.cache
 coverage.xml
 *.coveragerc
+coverage.html
 
 # Media files (if you have temporary media files you don’t want to commit)
 *.wav
@@ -78,6 +82,15 @@ test-results/
 /.idea/
 *.sublime-workspace
 *.sublime-project
+
+# Editor backup and temporary files
+*.bak
+*.swp
+*.swo
+
+# SQLite auxiliary files
+*.sqlite3-shm
+*.sqlite3-wal
 
 # Windows specific
 Thumbs.db
