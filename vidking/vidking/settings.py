@@ -29,6 +29,12 @@ LOGOUT_URL = reverse_lazy('logout')
 
 
 
+# Directory for media files
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+
+
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-4am5$_o^l)$j9l1k#2(x2ue!+efbv!=vp27_q7%066u1z+uzzg'
 
@@ -55,6 +61,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_simplejwt',
     'account',
+    'videos',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -95,8 +102,16 @@ TEMPLATES = [
 WSGI_APPLICATION = 'vidking.wsgi.application'
 
 
-dotenv_path = os.path.join(BASE_DIR, 'config', '.env')
+dotenv_path = os.path.join(BASE_DIR, 'vidking', '.env')
 load_dotenv(dotenv_path)
+
+
+print("Database Name:", os.getenv('DATABASE_NAME'))
+print("Database User:", os.getenv('DATABASE_USER'))
+print("Database Password:", os.getenv('DATABASE_PASSWORD'))
+print("Database Host:", os.getenv('DATABASE_HOST'))
+print("Database Port:", os.getenv('DATABASE_PORT'))
+
 
 DATABASES = {
     'default': {
