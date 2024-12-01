@@ -1,5 +1,97 @@
-venv/
+# Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
-vidking/vidking/__pycache__/
+*$py.class
+
+# Django specific
+db.sqlite3
+media/*
+static/
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+*.egg-info/
+dist/
+build/
+*.egg
+*.whl
+
+# Virtual environment
 .env
+.env/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints
+
+# VS Code settings
+.vscode/
+
+# PyCharm project files
+.idea/
+
+# macOS system files
+.DS_Store
+
+# Logs and temp files
+*.log
+*.temp
+*.tmp
+*.out
+
+# Cache files
+.cache/
+coverage/
+*.cover
+*.coverage
+coverage.xml
+*.coveragerc
+coverage.html
+
+# Media files (if you have temporary media files you don’t want to commit)
+*.wav
+*.mp4
+*.avi
+*.mov
+*.mkv
+*.mp3
+*.flac
+*.ogg
+*.aac
+
+# Dependency files
+*.lock
+
+# Migrations
+vidking/account/migrations/
+
+# Test result files
+test-results/
+.tox/
+.nox/
+*.pytest_cache/
+
+# IDE specific
+/.idea/
+*.sublime-workspace
+*.sublime-project
+
+# Editor backup and temporary files
+*.bak
+*.swp
+*.swo
+
+# SQLite auxiliary files
+*.sqlite3-shm
+*.sqlite3-wal
+
+# Windows specific
+Thumbs.db
+Desktop.ini
