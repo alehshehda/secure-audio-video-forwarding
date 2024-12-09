@@ -70,7 +70,7 @@ coverage.html
 *.lock
 
 # Migrations
-vidking/account/migrations/
+vidking/api/migrations/
 
 # Test result files
 test-results/

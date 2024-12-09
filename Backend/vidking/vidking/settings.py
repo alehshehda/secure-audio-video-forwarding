@@ -23,16 +23,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
-LOGIN_REDIRECT_URL = reverse_lazy('dashboard') 
-LOGIN_URL = '/account/api/login/'
-LOGOUT_URL = reverse_lazy('logout') 
-
 
 
 # Directory for media files
-
-MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+MEDIA_URL = '/media/'
+
 
 
 # SECURITY WARNING: keep the secret key used in production secret!
@@ -60,8 +56,8 @@ REST_FRAMEWORK = {
 INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_simplejwt',
-    'account',
-    'videos',
+    'api',
+    'corsheaders',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -75,6 +71,7 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
@@ -207,3 +204,10 @@ SIMPLE_JWT = {
     "SLIDING_TOKEN_OBTAIN_SERIALIZER": "rest_framework_simplejwt.serializers.TokenObtainSlidingSerializer",
     "SLIDING_TOKEN_REFRESH_SERIALIZER": "rest_framework_simplejwt.serializers.TokenRefreshSlidingSerializer",
 }
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173",
+]
+
+# Разрешить использование кукисов для аутентификации
+CORS_ALLOW_CREDENTIALS = True
