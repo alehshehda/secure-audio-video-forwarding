@@ -4,11 +4,12 @@ from django.contrib.auth.models import User
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from .serializers import UserSerializer, UserFilesSerializer
-from .models import Video
+from .models import UserFiles
 from django.shortcuts import get_object_or_404
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+import os
 
 
 
@@ -18,47 +19,60 @@ class CreateUserView(generics.CreateAPIView):
     permission_classes = [AllowAny]
     
     
-class UploadVideoView(APIView):
+class UploadFilesView(APIView):
     serializer_class = UserFilesSerializer
     permission_classes = [IsAuthenticated]
     
     def post(self, request):
-        serializer = UserFilesSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save(user=request.user)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        if 'file' not in request.FILES:
+            return Response({"error": "No file provided"}, status=status.HTTP_400_BAD_REQUEST)
+        file = request.FILES['file']
+        print(file)
+        user_file = UserFiles(user=request.user, file=file)
+        user_file.save()
+
+        serializer = UserFilesSerializer(user_file)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
             
             
-class VideoListView(APIView):
+class FilesListView(APIView):
     permission_classes = [IsAuthenticated]
     
     def get(self, request):
-        videos = Video.objects.filter(user=request.user)
-        serializer = UserFilesSerializer(videos, many=True)
+        # Получаем все UserFiles, связанные с текущим пользователем
+        user_files = UserFiles.objects.filter(user=request.user)
+        serializer = UserFilesSerializer(user_files, many=True)
         return Response(serializer.data)
             
 
-class VideoDownloadView(APIView):     
+class FilesDownloadView(APIView):     
     permission_classes = [IsAuthenticated]
     
     def get(self, request, pk):
-        video = get_object_or_404(Video, pk=pk, user=request.user)
-        response = Response()
-        response['Content-Disposition'] = f'attachment; filename="{video.file.name}"'
-        response['X-Accel-Redirect'] = f'/media/{video.file.name}'
-        return response
+        user_files = get_object_or_404(UserFiles, pk=pk, user=request.user)
+        serializer = UserFilesSerializer(user_files)
+        return Response(serializer.data)
 
 
 
-class VideoDeleteView(APIView):
+class FilesDeleteView(APIView):
     permission_classes = [IsAuthenticated]
     
     def delete(self, request, pk):
-        video = get_object_or_404(Video, pk=pk, user=request.user)
-        video.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        user_files = get_object_or_404(UserFiles, pk=pk, user=request.user)
+        file_path = user_files.file.path
 
+        try:
+            if os.path.exists(file_path):
+                os.remove(file_path)
+        except Exception as e:
+            return Response({"error": "Cannot delete file"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        
+        user_files.delete()
+        
+        return Response({"message": "File deleted"}, status=status.HTTP_204_NO_CONTENT)
+            
 
             
 

@@ -25,3 +25,5 @@ class UserFilesSerializer(serializers.ModelSerializer):
             'file_type': {'read_only': True},
             'uploaded_at': {'read_only': True}
         }
+        
+
