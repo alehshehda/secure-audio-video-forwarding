@@ -1,3 +1,4 @@
+from django.http import FileResponse
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
@@ -50,8 +51,19 @@ class FilesDownloadView(APIView):
     
     def get(self, request, pk):
         user_files = get_object_or_404(UserFiles, pk=pk, user=request.user)
-        serializer = UserFilesSerializer(user_files)
-        return Response(serializer.data)
+        
+        file_path = user_files.file.path
+        file_name = user_files.file.name.split('/')[-1]
+        
+        try:
+            response = FileResponse(open(file_path, 'rb'), content_type = 'application/octet-stream')
+            
+            response['Content-Disposition'] = f'attachment; filename="{file_name}"'
+            return response
+        except FileNotFoundError:
+            return Response({"error": "File not found"}, status=status.HTTP_404_NOT_FOUND) 
+            
+        
 
 
 

@@ -15,6 +15,7 @@ from pathlib import Path
 from django.urls import reverse_lazy
 import os
 from dotenv import load_dotenv
+from decouple import config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -33,6 +34,9 @@ MEDIA_URL = '/media/'
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-4am5$_o^l)$j9l1k#2(x2ue!+efbv!=vp27_q7%066u1z+uzzg'
+
+FIELD_ENCRYPTION_KEY = config('FIELD_ENCRYPTION_KEY') 
+
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
