@@ -1,68 +1,63 @@
+import os
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
 from django.conf import settings
-import magic
-import os
 
-def ensure_media_directory_exists():
-    # Sprawdza, czy folder 'media' istnieje
-    media_path = settings.MEDIA_ROOT
-    if not os.path.exists(media_path):
-        os.makedirs(media_path)
+# Ensure that the media directory exists
+def ensure_media_directory_exists(path):
+    """Ensures the directory exists where the file will be stored."""
+    if not os.path.exists(path):
+        os.makedirs(path)
+
+def dynamic_upload_path(instance, filename):
+    """
+    Determines the upload path dynamically based on the user ID and file extension.
+    Files are saved in: /media/user_id/extension/filename.
+    """
+    # Get file extension
+    file_extension = filename.split('.')[-1]  # Get the file extension from the filename
+    user_id = instance.user.id  # Get the user's ID
+
+    # Construct the file path based on user_id and file_extension
+    upload_path = os.path.join(str(user_id), file_extension, filename)
+
+    # Ensure the directory exists
+    ensure_media_directory_exists(os.path.join(settings.MEDIA_ROOT, str(user_id), file_extension))
+
+    return upload_path
 
 class UserFiles(models.Model):
-    # Powiązanie z użytkownikiem
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-
-    # Przechowywanie samego pliku
-    file = models.FileField(upload_to='uploads/')  # Zapis plików do folderu 'uploads/'
-
-    # Zapisywanie czasu dodania pliku
+    file = models.FileField(upload_to=dynamic_upload_path)  # Save file based on dynamic path
     uploaded_at = models.DateTimeField(default=timezone.now)
+    file_type = models.CharField(max_length=50, blank=True, null=True)  # Optional field for file type (extension)
 
-    # Pole do przechowywania typu pliku
-    file_type = models.CharField(max_length=20, blank=True, null=True)
+    def save(self, *args, **kwargs):
+        # Set the file type based on the file extension
+        if not self.file_type and self.file:
+            self.file_type = self.file.name.split('.')[-1]  # Get the file extension from the filename
+
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.user.username} uploaded {self.file.name} on {self.uploaded_at}"
 
-    def save(self, *args, **kwargs):
-        ensure_media_directory_exists()
+    from django.conf import settings
+    import os
 
-        # Automatyczne przypisanie folderu na podstawie typu pliku
-        if self.file:
-            # Użycie python-magic do rozpoznania typu pliku
-            mime = magic.Magic(mime=True)
-            file_type = mime.from_buffer(self.file.read(1024))  # Zaczytuje nagłówek pliku
-            self.file.seek(0)  # Przywraca pozycję pliku do początku
-            self.file_type = file_type  # Ustawiamy typ pliku
-
-            # Określenie folderu użytkownika w zależności od typu pliku
-            user_folder = str(self.user.id)
-
-            if file_type.startswith('audio'):
-                folder_path = f'{user_folder}/audio/'
-
-            elif file_type.startswith('video'):
-                folder_path = f'{user_folder}/video/'
-
-            elif file_type == 'text/plain':
-                folder_path = f'{user_folder}/text/'
-
-            elif file_type == 'application/pdf':
-                folder_path = f'{user_folder}/pdf/'
-
+    def delete_file(file_path):
+        try:
+            # Check if file exists
+            full_path = os.path.join(settings.MEDIA_ROOT, file_path)
+            if os.path.exists(full_path):
+                os.remove(full_path)
+                return True
             else:
-                folder_path = f'{user_folder}/other/'  # Domyślny folder na inne pliki
+                print(f"File not found at {full_path}")
+                return False
+        except Exception as e:
+            print(f"Error deleting file: {e}")
+            return False
 
-            # Sprawdzenie, czy folder istnieje, jeśli nie - tworzymy
-            full_path = os.path.join(settings.MEDIA_ROOT, 'uploads', folder_path)
-            os.makedirs(full_path, exist_ok=True)
-
-            # Nadanie ścieżki pliku (relatywnej)
-            self.file.name = os.path.join(folder_path, self.file.name)
-
-        # Wywołanie metody save z rodzica, aby plik został zapisany
-        super().save(*args, **kwargs)
 

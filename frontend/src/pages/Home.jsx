@@ -64,6 +64,31 @@ function Home() {
             .catch((err) => alert(err));
     }
 
+    const downloadFile = (file) => {
+        api
+            .get(`/api/video/download/${file.id}/`, {
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                },
+                responseType: 'blob'
+            })
+            .then((res) => {
+                if (res.status === 200) {
+                    const url = window.URL.createObjectURL(new Blob([res.data]));
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.setAttribute('download', file.file.split('/').pop()); // Устанавливаем имя файла
+                    document.body.appendChild(link);
+                    link.click();
+                    link.parentNode.removeChild(link);
+                    alert('File downloaded successfully');
+                } else {
+                    alert('File download failed');
+                }
+            })
+            .catch((err) => alert(err));
+    }
+
     return (
         <div>
             <h1>Home</h1>
@@ -75,6 +100,7 @@ function Home() {
                 {files.map((file) => (
                     <li key={file.id}>
                         {file.file}
+                        <button onClick={() => downloadFile(file)}>Download</button>
                         <button onClick={() => deleteFile(file.id)}>Delete</button>
                     </li>
                 ))}
