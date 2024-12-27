@@ -13,3 +13,8 @@ Our web application was developed using Python 3, Django framework and React.
 ---
 
 
+in the backend directory run:
+python manage.py runserver_plus --cert-file cert.pem --key-file key.pem
+
+frontend directory run:
+npm run dev

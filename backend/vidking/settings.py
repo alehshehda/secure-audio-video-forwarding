@@ -27,8 +27,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 
 # Directory for media files
-MEDIA_ROOT = BASE_DIR / 'media'
 MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 
 
@@ -69,6 +69,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_extensions',
     
 ]
 
@@ -211,8 +212,21 @@ SIMPLE_JWT = {
 }
 
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",
+    "https://localhost:5173",
 ]
+
+CSRF_TRUSTED_ORIGINS = ['https://127.0.0.1:8000',
+                        'https://localhost:8000',
+                        'https://127.0.0.1:5173',
+                        'https://localhost:5173',]
+
 
 # Разрешить использование кукисов для аутентификации
 CORS_ALLOW_CREDENTIALS = True
+
+SECURE_SSL_REDIRECT = True  # Automatyczne przekierowanie HTTP na HTTPS
+SESSION_COOKIE_SECURE = True  # Ciasteczka sesji tylko przez HTTPS
+CSRF_COOKIE_SECURE = True  # Ciasteczka CSRF tylko przez HTTPS
+SECURE_HSTS_SECONDS = 3600  # HTTP Strict Transport Security
+SECURE_HSTS_INCLUDE_SUBDOMAINS = False
+SECURE_HSTS_PRELOAD = False
